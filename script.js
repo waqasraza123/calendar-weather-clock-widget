@@ -34,7 +34,7 @@ function clock(){
 
 //======================================================================================================================
 
-        //======================== CLOCK        ENDS        HERE ************************************************
+//======================== CLOCK        ENDS        HERE ************************************************
 
 //======================================================================================================================
 $(document).ready(function(){
@@ -105,8 +105,8 @@ $(document).ready(function(){
                 success: function(weather) {
                     html = '<h2>'+weather.temp+'&deg;'+weather.units.temp+", "+weather.currently+ ", "+weather.city+'</h2>';
                     /*html += '<ul><li>'+weather.city+', '+weather.region+'</li>';
-                    html += '<li class="currently">'+weather.currently+'</li>';
-                    html += '<li>'+weather.alt.temp+'&deg;C</li></ul>';*/
+                     html += '<li class="currently">'+weather.currently+'</li>';
+                     html += '<li>'+weather.alt.temp+'&deg;C</li></ul>';*/
 
                     for(var i=0;i<weather.forecast.length;i++) {
                         html += '<p class="forecast">'+weather.forecast[i].day+': '+weather.forecast[i].high+'&deg;'+weather.units.temp+'</p>';
@@ -147,7 +147,94 @@ $(document).ready(function(){
 
 
 //======================================================================================================================
-var app=angular.module("myApp",[]),monthNames=["Jan","Feb","March","April","May","June","Jul","Aug","Sept","Oct","Nov","Dec"];app.controller("myAppController",function(e){e.days=["Mon","Tue","Wed","Thur","Fri","Sat","Sun"],e.getCalendar=function(e,t){console.log(t.getMonth());var a=t.getFullYear(),n=t.getMonth(),r=new Date,o=monthNames[n],s=t.getDate(),g=new Date(a,n+1,0).getDate(),l=0,u=0,w=new Date(a,n,1).getDay();e.currMonth=o+", "+a.toString(),e.dateNow=r,e.weeks=new Array([],[],[],[],[],[],[]),w=0===w?7:w;for(var h=w-1;h>0;h--){var D=new Date(a,n,l--),s={};s.number=D.getDate(),s["class"]="disabled",s.data=s.number+"  ",e.weeks[u].push(s)}e.weeks[u].reverse();var d=7-e.weeks[0].length;1>d&&(u++,d=7);for(var v=w,p=1;g+1>p;p++){var t=new Date(a,n,p),s={};s.number=t.getDate(),s.weather=" ",s.data=s.number+" "+s.weather,r.getDate()===t.getDate()&&(s["class"]="today");var d=7-e.weeks[u].length;1>d&&(u++,d=7),e.weeks[u].push(s),v++}for(var v=v,c=1;43>v;){var m=new Date(a,n+1,c++),s={};s.number=m.getDate(),s["class"]="disabled",s.data=s.number+"";var d=7-e.weeks[u].length;1>d&&(u++,d=7),e.weeks[u].push(s),v++}};var t=new Date,a=new Date(t);e.getCalendar(e,a),e.next=function(){a.setMonth(a.getMonth()+1),e.getCalendar(e,a)},e.previous=function(){a.setMonth(a.getMonth()-1),e.getCalendar(e,a)}});
+var app = angular.module("myApp", []);
+var monthNames = ["Jan", "Feb", "March", "April", "May", "June",
+    "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+
+app.controller("myAppController",function($scope) {
+
+    $scope.days = ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"];
+
+    $scope.getCalendar=function($scope,date){
+        console.log(date.getMonth());
+        //date = (typeof (date) === 'undefined')?new Date():new Date(date);
+        var year = date.getFullYear();
+        var month = date.getMonth();
+        var dateNow = (new Date());
+        var monthName = monthNames[month];
+        var day = date.getDate();
+        var dayInMon = (new Date(year, month + 1, 0)).getDate();
+        var minusDate = 0;
+        var weekIndex = 0;
+        var monthStartDay = new Date(year,month, 1).getDay();
+        $scope.currMonth = monthName + ", " + year.toString();
+        $scope.dateNow = dateNow;
+        $scope.weeks = new Array([],[],[],[],[],[],[]);
+        monthStartDay= ( monthStartDay === 0 ) ?  7 : monthStartDay ;
+        for(var i=monthStartDay - 1;i>0;i--){
+            var preMonDate = new Date(year, month, minusDate--);
+            var day = {};
+            day.number = preMonDate.getDate();
+            day.class = "disabled";
+            day.data = day.number + "  ";
+            $scope.weeks[weekIndex].push(day);
+        }
+        $scope.weeks[weekIndex].reverse();
+        var weekRemaining = 7-$scope.weeks[0].length;
+        if(weekRemaining<1){
+            weekIndex++;
+            weekRemaining = 7;
+        }
+        var count = monthStartDay;
+        for (var dateIte = 1; dateIte < dayInMon + 1;  dateIte++) {
+            var date = new Date(year, month, dateIte);
+            var day = {};
+            day.number = date.getDate();
+            day.weather = ' ';
+            day.data = day.number + " " + day.weather;
+            if(dateNow.getDate() === date.getDate()){
+                day.class = "today";
+            }
+            var weekRemaining = 7-$scope.weeks[weekIndex].length;
+            if(weekRemaining<1){
+                weekIndex++; weekRemaining = 7;
+            }
+            $scope.weeks[weekIndex].push(day);
+            count++;
+        }
+        var count = count;
+        var plusDate = 1;
+        while (count < 43) {
+            var nextMonDate = new Date(year, month + 1, plusDate++);
+            var day = {};
+            day.number = nextMonDate.getDate();
+            day.class = "disabled";
+            day.data = day.number + "";
+            var weekRemaining = 7-$scope.weeks[weekIndex].length;
+            if(weekRemaining<1){
+                weekIndex++; weekRemaining = 7;
+            }
+            $scope.weeks[weekIndex].push(day);
+            count++;
+        }
+
+    }
+    var currentDate = new Date();
+    var calendarDate = new Date(currentDate);
+    $scope.getCalendar($scope,calendarDate);
+
+    $scope.next=function(){
+        calendarDate.setMonth(calendarDate.getMonth()+1);
+        $scope.getCalendar($scope,calendarDate);
+    }
+    $scope.previous=function(){
+        calendarDate.setMonth(calendarDate.getMonth()-1);
+        $scope.getCalendar($scope,calendarDate);
+
+    }
+
+});
 //======================================================================================================================
 
 
